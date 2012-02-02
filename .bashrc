@@ -4,7 +4,7 @@
 export EDITOR=vim
 
 export PATH=/usr/local/bin:~/.bin:$PATH
-export $PYTHONPATH=~/code/kivy:$PYTHONPATH
+export PYTHONPATH=~/code/kivy:$PYTHONPATH
 export PYTHONDONTWRITEBYTECODE=1
 
 TEHANSEN_DEFAULT_COLOR="[00m"
@@ -24,7 +24,7 @@ TEHANSEN_VC_PROMPT_EX="$TEHANSEN_VC_PROMPT%m%u"
 
 tehansen_vcprompt() {
   path=`pwd`
-  prompt="$TEHANSEN_VC_PROMPT_EX"a a
+  prompt="$TEHANSEN_VC_PROMPT_EX"
   vcprompt -f "$prompt"
 }
 
@@ -82,6 +82,8 @@ export GREP_OPTIONS='--color=auto' GREP_COLOR='1;32'
 export CLICOLOR=1
 alias ls='ls --color=auto'
 export IGNOREEOF=1
+
+alias k='kill -9 `jobs -p` 2>/dev/null && sleep 0.1 && jobs'
 
 # virtualenvwrapper and pip
 if [ `id -u` != '0' ]; then

@@ -14,6 +14,10 @@ map <C-c> "+y
 "fix indent for whole file
 map <F12> <ESC> gg=G
 
+" remove trailing whitespace
+nnoremap <F11> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
+
+
 "keep selection for indnet in visual mode
 vnoremap > >gv
 vnoremap < <gv
@@ -21,6 +25,7 @@ vnoremap < <gv
 "match bracktes
 nmap <tab> %
 vmap <tab> %
+
 
 "editor settings
 "====================================================================
@@ -90,6 +95,9 @@ au! BufWritePost .vimrc source %
 
 " python support
 " --------------
+au BufNewFile,BufRead *.kv set filetype=kivy
+autocmd FileType kivy setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent
+
 autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent
 autocmd FileType python set complete+=k~/.vim/syntax/python.vim isk+=.,(
 let python_highlight_all=1
