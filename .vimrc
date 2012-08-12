@@ -1,22 +1,35 @@
+let mapleader = ","
+call pathogen#infect()
+
+
 "key mappings
 "====================================================================
+
+"edit .vimrc
 map ,v :sp ~/.vimrc<cr>
 
 "F!%*ing WRITE IT
 cmap W! w !sudo tee % >/dev/null
 
-"map ctrl paste/yank to use system clipboard
-map <C-S-p> "+P
-map <C-p> "+p
+"map ctrl c/v to use system clipboard
+map <C-S-v> "+P
 map <C-S-c> "+Y
-map <C-c> "+y
+
 
 "fix indent for whole file
-map <F12> <ESC> gg=G
+map <leader>gg gg=G
 
 " remove trailing whitespace
-nnoremap <F11> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
+map <leader>w :call StripTrailingWhiteSpace()<CR>
 
+"flake8 / pep8 check
+map <Leader>f :call Flake8()<CR>
+
+"command-t  plugin
+map <Leader>e :CommandT<CR>
+map <Leader>b :CommandTBuffer<CR>
+map <Leader>t :CommandT<CR>
+map <D-t> :CommandT<CR>
 
 "keep selection for indnet in visual mode
 vnoremap > >gv
@@ -25,6 +38,9 @@ vnoremap < <gv
 "match bracktes
 nmap <tab> %
 vmap <tab> %
+
+map <C-,> <C-w><left>
+map <C-.> <C-w><right>
 
 
 "editor settings
@@ -40,49 +56,57 @@ set expandtab
 set hlsearch
 set incsearch
 
-"command line
-set cmdheight=1
-set laststatus=2
-set showcmd
-
 "allow hidden buffer and backup files somewhere else
 set hidden
 set backupdir=~/.vim/sessions
 set dir=~/.vim/sessions
 
 
+
 "interface settings
 "====================================================================
 :colorscheme zenburn
-highlight ColorColumn guibg=#444444
+highlight ColorColumn guibg=#554444
 set number
 set colorcolumn=80,81
 set cursorline
 set completeopt-=preview
 
-" turn off any kind of bell
-set gcr=a:blinkon0 
-set noerrorbells
-set vb 
+"status & command line
+set cmdheight=1
+set laststatus=2
+set showcmd
+set statusline=%F\ %m\ %{fugitive#statusline()}\ %y%=%l,%c\ %P
 
+" turn off any kind of bell
+set gcr=a:blinkon0
+set noerrorbells
+set vb
 
 set ttyfast
-set scrolloff=5
+set scrolloff=10
+
 set wildmenu
 set wildignore=*.dll,*.o,*.pyc,*.bak,*.exe,*.jpg,*.jpeg,*.png,*.gif,*$py.class,*.class
 set wildmode=list:full
+set completeopt=menu,menuone,longest
+set pumheight=15
 
 set title
 set titleold="Terminal"
 set titlestring=%F
 
-"gui options
 set guioptions-=T     "dont show gui toolbar
 set guioptions-=r     "remove right- and left-hand scrollbars
 set guioptions-=L
 set guioptions-=m     "dont show menu
-"set fuopt+=maxhorz   "grow to maximum horizontal width on entering fullscreen mode
 
+
+
+"plugin options
+"=============================================================================
+let g:SuperTabDefaultCompletionType="context"
+let g:CommandTMaxHeight=10
 
 
 
@@ -90,34 +114,34 @@ set guioptions-=m     "dont show menu
 "=============================================================================
 filetype plugin indent on
 
-au! BufWritePost .vimrc source %
-
-
 " python support
 " --------------
-au BufNewFile,BufRead *.kv set filetype=kivy
-autocmd FileType kivy setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent
-
-autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent
-autocmd FileType python set complete+=k~/.vim/syntax/python.vim isk+=.,(
 let python_highlight_all=1
 let python_highlight_exceptions=0
 
-autocmd FileType pyrex setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class,with
-autocmd FileType pyrex set complete+=k~/.vim/syntax/python.vim isk+=.,(
+au FileType python setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent
+"au FileType python set complete+=k~/.vim/syntax/python.vim isk+=.,(
+au FileType python set omnifunc=pythoncomplete#Complete
+au BufWritePre *.py call StripTrailingWhiteSpace()
+au BufWritePost *.py call Flake8()
 
 
+au FileType pyrex setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class,with
+au FileType pyrex set omnifunc=pythoncomplete#Complete
+"au FileType pyrex set complete+=k~/.vim/syntax/python.vim isk+=.,(
 
 
-" Python and other filetype settings from Armin Ronacher
+au FileType kivy setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent
+au BufNewFile,BufRead *.kv set filetype=kivy
+au BufWritePre *.kv call StripTrailingWhiteSpace()
+
+
+" Other filetype settings, mostly stolen from Armin Ronacher's .vimrc
 " https://github.com/mitsuhiko/dotfiles/blob/master/vim/vimrc
-"
 
 " template language support (SGML / XML too)
 " ------------------------------------------
-" and disable taht stupid html rendering (like making stuff bold etc)
-
-autocmd FileType html setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2 
+autocmd FileType html setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
 let html_no_rendering=1
 
 
@@ -191,3 +215,12 @@ autocmd FileType d setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4
 " -------------
 autocmd BufNewFile,BufRead CMakeLists.txt setlocal ft=cmake
 
+"source .vimrc on write
+au! BufWritePost .vimrc source ~/.vimrc
+
+fun! StripTrailingWhiteSpace()                                              
+  let l = line(".")                                                         
+  let c = col(".")                                                          
+  %s/\s\+$//e                                                               
+  call cursor(l, c)                                                         
+endfun 

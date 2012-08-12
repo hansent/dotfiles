@@ -1,11 +1,44 @@
-# If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-export EDITOR=vim
-
-export PATH=/usr/local/bin:~/.bin:$PATH
-export PYTHONPATH=~/code/kivy:$PYTHONPATH
+export EDITOR=gvim
+export PATH=${HOME}/.bin:/usr/local/bin:$PATH
 export PYTHONDONTWRITEBYTECODE=1
+export PYTHONPATH=${HOME}/code/kivy:${PYTHONPATH}
+
+alias k='kill -9 `jobs -p` 2>/dev/null && sleep 0.1 && jobs'
+alias ls='ls -Ah'
+
+source ${HOME}/.aws/auth &> /dev/null
+source /usr/local/git/contrib/completion/git-completion.bash &> /dev/null
+source /etc/bash_completion &> /dev/null
+source /usr/local/bin/virtualenvwrapper.sh &> /dev/null
+
+# VIRTUALENVWRAPPER
+#==============================================================================
+export PROJECT_HOME="~/code"
+export WORKON_HOME=$HOME/.virtualenvs
+export VIRTUALENV_USE_DISTRIBUTE=1
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+function mkvirtenv {
+    proj=$1
+    mkvirtualenv -a ${HOME}/code/${proj} --distribute ${proj}
+}
+
+
+
+# PROMPT COLORS / FORMAT
+#==============================================================================
+export TERM=xterm-color
+export GREP_OPTIONS='--color=auto' GREP_COLOR='1;32'
+export CLICOLOR=1
+export IGNOREEOF=1
+export PS1='\n\e${TEHANSEN_GREEN_COLOR}\w\
+`tehansen_lastcommandfailed` \
+\e${TEHANSEN_GRAY_COLOR}`tehansen_vcprompt`\
+`tehansen_backgroundjobs`\
+`tehansen_virtualenv`\
+\e${TEHANSEN_DEFAULT_COLOR}\n
+$ '
 
 TEHANSEN_DEFAULT_COLOR="[00m"
 TEHANSEN_GRAY_COLOR="[37m"
@@ -13,13 +46,11 @@ TEHANSEN_PINK_COLOR="[35m"
 TEHANSEN_GREEN_COLOR="[32m"
 TEHANSEN_ORANGE_COLOR="[33m"
 TEHANSEN_RED_COLOR="[31m"
+TEHANSEN_USER_COLOR=$TEHANSEN_PINK_COLOR
 if [ `id -u` == '0' ]; then
   TEHANSEN_USER_COLOR=$TEHANSEN_RED_COLOR
-else
-  TEHANSEN_USER_COLOR=$TEHANSEN_PINK_COLOR
 fi
-
-TEHANSEN_VC_PROMPT=$' on \033[34m%n\033[00m:\033[00m%[unknown]b\033[32m'
+TEHANSEN_VC_PROMPT=$' \033[33m%n\033[00m:\033[00m%[unknown]b\033[32m'
 TEHANSEN_VC_PROMPT_EX="$TEHANSEN_VC_PROMPT%m%u"
 
 tehansen_vcprompt() {
@@ -28,11 +59,10 @@ tehansen_vcprompt() {
   vcprompt -f "$prompt"
 }
 
-
 tehansen_lastcommandfailed() {
   code=$?
   if [ $code != 0 ]; then
-    echo -n $'\033[37m exited \033[31m'
+    echo -n $'\033[37m EC \033[31m'
     echo -n $code
     echo -n $'\033[37m'
   fi
@@ -66,49 +96,5 @@ tehansen_virtualenv() {
   fi
 }
 
-export TEHANSEN_BASEPROMPT='\n\e${TEHANSEN_USER_COLOR}\u\
-\e${TEHANSEN_GRAY_COLOR}@\e${TEHANSEN_ORANGE_COLOR}\h\
-\e${TEHANSEN_GRAY_COLOR}:\e${TEHANSEN_GREEN_COLOR}\w\
-`tehansen_lastcommandfailed`\
-# \e${TEHANSEN_GRAY_COLOR}`tehansen_vcprompt`\
-`tehansen_backgroundjobs`\
-`tehansen_virtualenv`\
-\e${TEHANSEN_DEFAULT_COLOR}'
-export PS1="${TEHANSEN_BASEPROMPT}
-$ "
 
-export TERM=xterm-color
-export GREP_OPTIONS='--color=auto' GREP_COLOR='1;32'
-export CLICOLOR=1
-alias ls='ls --color=auto'
-export IGNOREEOF=1
-
-alias k='kill -9 `jobs -p` 2>/dev/null && sleep 0.1 && jobs'
-
-# virtualenvwrapper and pip
-if [ `id -u` != '0' ]; then
-  export VIRTUALENV_USE_DISTRIBUTE=1
-  if [ -f /usr/local/bin/virtualenvwrapper.sh ]; then
-    export WORKON_HOME=$HOME/.virtualenvs
-    source /usr/local/bin/virtualenvwrapper.sh
-  fi
-  #export PIP_VIRTUALENV_BASE=$WORKON_HOME
-  #export PIP_RESPECT_VIRTUALENV=true
-fi
-
-
-
-#if [ x`which hub` != x ]; then
-#  alias git=hub
-#fi
-
-if [ -f /usr/local/git/contrib/completion ]; then
-  . /usr/local/git/contrib/completion/git-completion.bash
-fi
-if [ -f /etc/bash_completion ]; then
-  . /etc/bash_completion
-fi
-
-# don't let virtualenv show prompts by itself
-VIRTUAL_ENV_DISABLE_PROMPT=1
 
