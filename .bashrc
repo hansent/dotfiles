@@ -37,7 +37,7 @@ export PS1='\n\e${TEHANSEN_GREEN_COLOR}\w\
 \e${TEHANSEN_GRAY_COLOR}`tehansen_vcprompt`\
 `tehansen_backgroundjobs`\
 `tehansen_virtualenv`\
-\e${TEHANSEN_DEFAULT_COLOR}\n
+\e${TEHANSEN_DEFAULT_COLOR}
 $ '
 
 TEHANSEN_DEFAULT_COLOR="[00m"
